@@ -33,6 +33,7 @@ def welcome():
 
 # Print the game menu
 def menu():
+	#create variables for reference 
     global end_of_game
     global value
     option = input("Select an option:   H - View High Scores     P - Play Game       Q - Quit\n")
@@ -49,7 +50,11 @@ def menu():
     	print("Press and hold the guess button to cancel your game")
     	value = generate_number()
     	PWM_LED.start(0)
+	#resets all scores 
+    	reset_game()
+#Sets duty cycle to 50 as desired  and frequency 
     	PWM_Buzzer.start(50) 
+    	PWM_Buzzer.ChangeFrequency(0.5)
 
     	while not end_of_game:
     		continue 
@@ -79,7 +84,8 @@ def setup():
     # Setup board mode
 	GPIO.setmode(GPIO.BOARD) 
     # Setup regular GPIO
-	 
+	
+	
 	 
 	GPIO.setup(11, GPIO.OUT)
 	GPIO.setup(13, GPIO.OUT)
@@ -101,8 +107,8 @@ def setup():
 	global PWM_LED 
 	 
 	PWM_LED = GPIO.PWM(LED_accuracy ,100)
-	PWM_LED.start(80)
-	PWM_Buzzer = GPIO.PWM(buzzer, 100) 
+	#PWM_LED.start(80)
+	PWM_Buzzer = GPIO.PWM(buzzer, 1) 
         
   
     # Setup debouncing and callbacks
@@ -113,6 +119,17 @@ def setup():
 	GPIO.add_event_detect(btn_increase, edge = GPIO.RISING , callback=btn_increase_pressed  ,bouncetime = 200)  
 	
 
+#function that resets everything at start of new game
+def reset_game(): 
+	#variable used for conrolling game state 
+	global end_of_game 
+	end_of_game = 0 
+	#num of current guess from user
+	global user_guess
+	user_guess = 0
+	#num of amount of guesses
+	global num_of_guesses 
+	num_of_guesses = 0 
 
 # Load high scores
 def fetch_scores():
@@ -251,15 +268,15 @@ def btn_guess_pressed(channel):
 	global end_of_game 
 	global num_of_guesses
 	num_of_guesses= num_of_guesses +1 
-
+	print("Attempt number: ", num_of_guesses) 
 	start_time = time.time() 
 	while GPIO.input(channel) ==0: 
 		pass 
 
 	presstime = time.time() - start_time 
 
-	if presstime > 1: 
-		PWM_LED.ChangeFrequency(100)
+	if presstime >0.99: 
+		
 		PWM_LED.stop()
 		PWM_Buzzer.stop() 
 		end_of_game = True 
@@ -310,11 +327,11 @@ def trigger_buzzer():
 	if(abs(user_guess - value) == 3):
 		PWM_Buzzer.ChangeFrequency(1) 
     # If the user is off by an absolute value of 2, the buzzer should sound twice every second
-	if(abs(user_guess - value) == 2):
+	elif (abs(user_guess - value) == 2):
 		PWM_Buzzer.ChangeFrequency(2)
 
     # If the user is off by an absolute value of 1, the buzzer should sound 4 times a second
-	if(abs(user_guess - value) == 1):
+	elif (abs(user_guess - value) == 1):
 		PWM_Buzzer.ChangeFrequency(4)
 
 
@@ -326,7 +343,7 @@ if __name__ == "__main__":
         welcome()
         while True:
             menu()
-            pass 
+           
     except Exception as e:
         print(e)
     finally:
