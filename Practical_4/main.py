@@ -39,18 +39,18 @@ def fetch_temp() :
 
 #Creating counter that uses thread and prints based on period 
 def sens_thread():
-	"""
-	This function prints the ADC sensor values to the screen every ten seconds
-	"""
+
 	global runtime
 
 	period = modes[level]
-	thread = threading.Timer(period, sens_thread) # threading being used to implement the timer
-	thread.daemon = True  # Daemon threads exit when the program does
+	thread = threading.Timer(period, sens_thread)
+	# threading being used to implement the timer
+	thread.daemon = True
+	# Daemon threads exit when the program does
 
 	thread.start() # starts timer
 	runtime = time.time() - startTime #time lapesed calculated
-	printvalues() # invoke the printADC function to print the various sensor values
+	printvalues() # invoke the print function to print the various sensor values
 	pass
 
 #function that prints values
